@@ -4,14 +4,32 @@ function [ output_args ] = detrendFourier( elevation_file )
 %covered glaciers. Expected input is an n x 2 x,y elevation profile.
 %   Detailed explanation goes here
 
-    [x,elev] = load(elevation_file);
+    input = load(elevation_file);
+    x = input(:,1); %metres
+    elev = input(:,2); %metres
     figure(1);
     plot(x,elev);
     xlabel('Distance, km');
     ylabel('Elevation, m');
     title('Input Elevation Profile');
     
-    fft(elev
-    
+    detrend_elev = detrend(elev);
+    figure(2)
+    plot(x,detrend_elev);
+    xlabel('Distance, km');
+    ylabel('Elevation, m');
+    title('Detrended Elevation Profile');
+   
+    Fs = 1; %1 m resolution, which I think is the spatial sampling 'frequency'
+    T = 1/Fs;
+    L=length(detrend_elev);
+    n = 2^nextpow2(L); %for padding the input with trailing zeroes, for fft performance
+    elev_fft = fft(detrend_elev,n);
+    inv_x = Fs*(0:(n/2))/n;
+    P2 = abs(elev_fft/L); %two-sided spectrum
+    figure(3)
+    loglog(inv_x,P2(1:n/2+1));
+    title('Frequency spectrum for the detrended elevation profile');
+    xlabel('Spa
 end
 
